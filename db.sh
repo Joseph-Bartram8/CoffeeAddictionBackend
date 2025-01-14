@@ -1,0 +1,1 @@
+docker exec -it uni-db psql -U postgres -d beans
