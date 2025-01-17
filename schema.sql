@@ -3,7 +3,7 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    login_attempts INT NOT NULL DEFAULT 0,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -23,4 +23,4 @@ CREATE TABLE coffee_beans (
 );
 
 --create example user
-INSERT INTO users (username, password_hash, email, first_name, last_name) VALUES ('john', 'abc', 'john@gmail.com', 'John', 'Doe');
+INSERT INTO users (username, password_hash, first_name, last_name) VALUES ('john', 'abc', 'John', 'Doe');
