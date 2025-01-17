@@ -1,0 +1,1 @@
+cat ./schema.sql | docker exec -i uni-db psql -U postgres -d beans
