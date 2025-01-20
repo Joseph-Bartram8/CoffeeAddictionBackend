@@ -151,3 +151,108 @@ export async function incrementLoginAttempts(client: Client, args: IncrementLogi
     });
 }
 
+export const getUserBeansQuery = `-- name: GetUserBeans :many
+SELECT bean_id, user_id, name, origin, roast_level, image_url, price_per_kg, stock_quantity, description FROM coffee_beans WHERE user_id = $1`;
+
+export interface GetUserBeansArgs {
+    userId: number | null;
+}
+
+export interface GetUserBeansRow {
+    beanId: number;
+    userId: number | null;
+    name: string;
+    origin: string | null;
+    roastLevel: string | null;
+    imageUrl: string | null;
+    pricePerKg: string | null;
+    stockQuantity: number | null;
+    description: string | null;
+}
+
+export async function getUserBeans(client: Client, args: GetUserBeansArgs): Promise<GetUserBeansRow[]> {
+    const result = await client.query({
+        text: getUserBeansQuery,
+        values: [args.userId],
+        rowMode: "array"
+    });
+    return result.rows.map(row => {
+        return {
+            beanId: row[0],
+            userId: row[1],
+            name: row[2],
+            origin: row[3],
+            roastLevel: row[4],
+            imageUrl: row[5],
+            pricePerKg: row[6],
+            stockQuantity: row[7],
+            description: row[8]
+        };
+    });
+}
+
+export const createUserBeanQuery = `-- name: CreateUserBean :one
+INSERT INTO coffee_beans (name, origin, roast_level, image_url, price_per_kg, stock_quantity, description, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING bean_id, user_id, name, origin, roast_level, image_url, price_per_kg, stock_quantity, description`;
+
+export interface CreateUserBeanArgs {
+    name: string;
+    origin: string | null;
+    roastLevel: string | null;
+    imageUrl: string | null;
+    pricePerKg: string | null;
+    stockQuantity: number | null;
+    description: string | null;
+    userId: number | null;
+}
+
+export interface CreateUserBeanRow {
+    beanId: number;
+    userId: number | null;
+    name: string;
+    origin: string | null;
+    roastLevel: string | null;
+    imageUrl: string | null;
+    pricePerKg: string | null;
+    stockQuantity: number | null;
+    description: string | null;
+}
+
+export async function createUserBean(client: Client, args: CreateUserBeanArgs): Promise<CreateUserBeanRow | null> {
+    const result = await client.query({
+        text: createUserBeanQuery,
+        values: [args.name, args.origin, args.roastLevel, args.imageUrl, args.pricePerKg, args.stockQuantity, args.description, args.userId],
+        rowMode: "array"
+    });
+    if (result.rows.length !== 1) {
+        return null;
+    }
+    const row = result.rows[0];
+    return {
+        beanId: row[0],
+        userId: row[1],
+        name: row[2],
+        origin: row[3],
+        roastLevel: row[4],
+        imageUrl: row[5],
+        pricePerKg: row[6],
+        stockQuantity: row[7],
+        description: row[8]
+    };
+}
+
+export const deleteUserBeanQuery = `-- name: DeleteUserBean :exec
+DELETE FROM coffee_beans WHERE bean_id = $1 AND user_id = $2`;
+
+export interface DeleteUserBeanArgs {
+    beanId: number;
+    userId: number | null;
+}
+
+export async function deleteUserBean(client: Client, args: DeleteUserBeanArgs): Promise<void> {
+    await client.query({
+        text: deleteUserBeanQuery,
+        values: [args.beanId, args.userId],
+        rowMode: "array"
+    });
+}
+
